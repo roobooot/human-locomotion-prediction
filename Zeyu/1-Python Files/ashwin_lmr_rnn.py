@@ -7,7 +7,7 @@
 
 # In[1]:
 
-
+import os
 import numpy as np
 from scipy.io import loadmat
 from keras.models import Sequential, Model
@@ -24,6 +24,7 @@ from keras.utils import Sequence, to_categorical
 
 
 # Read sit-stand data from file
+print(os.getcwd())
 sit_stand_data = loadmat('../Datasets/ashwin_testdata/sit_stand_data_labeled.mat')
 walk_data = loadmat('../Datasets/ashwin_testdata/walk_data_ashwin.mat')
 
