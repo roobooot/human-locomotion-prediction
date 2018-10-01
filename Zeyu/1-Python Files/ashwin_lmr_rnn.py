@@ -24,7 +24,6 @@ from keras.utils import Sequence, to_categorical
 
 
 # Read sit-stand data from file
-print(os.getcwd())
 sit_stand_data = loadmat('../../Datasets/ashwin_testdata/sit_stand_data_labeled.mat')
 walk_data = loadmat('../../Datasets/ashwin_testdata/walk_data_ashwin.mat')
 
@@ -37,7 +36,7 @@ X_test = tmp_x[tmp_x.shape[0]-8950:, :]
 Y_test = tmp_y[tmp_x.shape[0]-8950:, :]/100.
 # Sit-Stand training set
 X_train = tmp_x[:tmp_x.shape[0]-8950, :]
-Y_train = tmp_y[:tmp_x.shape[0]-8950, :]
+Y_train = tmp_y[:tmp_x.shape[0]-8950, :]/100
 
 tmp_x = walk_data['imu_features']
 tmp_y = walk_data['lm_label']/300.

@@ -36,7 +36,7 @@ for i in range(Ytemp.shape[0]):
         Yint[i] = 2
             
 Y_prep = to_categorical(Yint)
-print(Y_prep)
+
 
 # Get some statistics from the data
 exp_dur = X.shape[0]/100.0
@@ -57,16 +57,18 @@ plt.show()
 
 # In[3]:
 
-
+# Normalization
 scale_factors = np.std(X, axis=0)
 mean_values = np.mean(X, axis=0)
 X_prep = (X - mean_values)/scale_factors
 #print("After normalizing: ")
 #print("Mean is: ", np.mean(X_prep, axis=0))
 #print("Stdev. is: ", np.std(X_prep, axis=0))
+
+# Plot all of the normalized data
 plt.figure(figsize=(10, 6))
 plt.plot(t, X_prep)
-plt.plot(t, Y)
+plt.plot(t, Y*10)
 plt.xlim([6, 12])
 plt.ylabel('Features')
 plt.xlabel('Time (s)')
@@ -148,9 +150,19 @@ def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=N
     
     return out_x, out_y
 
+# Split into test data and train data
+X_test = X_prep[X_prep.shape[0]-8950:, :]
+Y_test = Y_prep[Y_prep.shape[0]-8950:, :]
+X_train = X_prep[:X_prep.shape[0]-8950, :]
+Y_train = Y_prep[:Y_prep.shape[0]-8950, :]
+
 # Generate dataset of sub-sequences
 X_seq, Y_seq = get_sub_sequences(X_prep, Y_prep, window_size=120, step_size=1)
 X_seq = np.reshape(X_seq, newshape=(X_seq.shape[0], X_seq.shape[1], X_seq.shape[2], 1))
+X_seq_test, Y_seq_test = get_sub_sequences(X_test, Y_test, window_size=120, step_size=1)
+X_seq_test = np.reshape(X_seq_test, newshape=(X_seq_test.shape[0], X_seq_test.shape[1], X_seq_test.shape[2], 1))
+X_seq_train, Y_seq_train = get_sub_sequences(X_train, Y_train, window_size=120, step_size=1)
+X_seq_train = np.reshape(X_seq_train, newshape=(X_seq_train.shape[0], X_seq_train.shape[1], X_seq_train.shape[2], 1))
 # Plot some subsequences to make sure that we're doing it right
 # plt.figure(figsize=(15, 9))
 # for i in range(1, 10, 1):
@@ -178,10 +190,13 @@ cnn_model1.add(Dense(3, activation='softmax'))
 #cnn_model1.add(Dense(3, activation='softmax'))
 cnn_model1.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 cnn_model1.summary()
-print("X_seq: ", X_seq.shape)
-print("Y_seq: ", Y_seq.shape)
-cnn_model1.fit(X_seq, Y_seq, batch_size=128)
-cnn_preds = cnn_model1.predict(X_seq)
+print("X_seq_train: ", X_seq_train.shape)
+print("Y_seq_train: ", Y_seq_train.shape)
+cnn_model1.fit(X_seq_train, Y_seq_train, validation_data=(X_seq_test,Y_seq_test), batch_size=128)
+score = cnn_model1.evaluate(X_seq_test, Y_seq_test, batch_size=128)
+cnn_preds = cnn_model1.predict(X_seq) # Results of the prediction from the trained model
+
+# ### Plot the results
 plt.figure(figsize=(15, 9))
 plt.plot(t, X[:, 56], label='Right Foot Tilt')
 plt.plot(t, X[:, 57], label='Right Shank Tilt')
