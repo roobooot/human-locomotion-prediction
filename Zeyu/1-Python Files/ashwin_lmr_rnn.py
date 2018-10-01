@@ -25,8 +25,8 @@ from keras.utils import Sequence, to_categorical
 
 # Read sit-stand data from file
 print(os.getcwd())
-sit_stand_data = loadmat('../Datasets/ashwin_testdata/sit_stand_data_labeled.mat')
-walk_data = loadmat('../Datasets/ashwin_testdata/walk_data_ashwin.mat')
+sit_stand_data = loadmat('../../Datasets/ashwin_testdata/sit_stand_data_labeled.mat')
+walk_data = loadmat('../../Datasets/ashwin_testdata/walk_data_ashwin.mat')
 
 
 # Take one 90 seconds of data from the sit-stand and 2 minutes from the walking data for Testing.

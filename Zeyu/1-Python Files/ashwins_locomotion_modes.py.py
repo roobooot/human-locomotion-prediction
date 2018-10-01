@@ -22,7 +22,7 @@ from keras.utils import Sequence, to_categorical
 
 # Import the data from the mat file
 
-data_in = loadmat('walk_data_ashwin.mat')
+data_in = loadmat('../../Datasets/ashwin_testdata/walk_data_ashwin.mat')
 X = data_in['imu_features']
 Y = data_in['lm_label']/300
 Ytemp = np.argwhere(Y)[:, 1]
