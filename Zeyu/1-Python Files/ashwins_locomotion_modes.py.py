@@ -8,6 +8,7 @@
 import numpy as np
 from scipy.io import loadmat
 from keras.models import Sequential, Model
+from keras.models import load_model
 from keras.layers import Input, Dense, Activation, LSTM, SimpleRNN, Conv1D, Conv2D, MaxPooling1D, MaxPooling2D, Flatten
 import keras.backend as K
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ from keras.utils import Sequence, to_categorical
 
 # In[2]:
 
-
+IfReadModel = True
 # Import the data from the mat file
 
 data_in = loadmat('../../Datasets/ashwin_testdata/walk_data_ashwin.mat')
@@ -180,19 +181,21 @@ X_seq = np.reshape(X_seq, newshape=(X_seq.shape[0], X_seq.shape[1], X_seq.shape[
 
 # In[25]:
 
-
-cnn_model1 = Sequential()
-cnn_model1.add(Conv2D(filters=16, kernel_size=9, input_shape=(120, 63, 1), 
-                      data_format='channels_last', activation='relu', padding='valid'))
-cnn_model1.add(MaxPooling2D(pool_size=(10, 3), padding='valid'))
-cnn_model1.add(Flatten())
-cnn_model1.add(Dense(3, activation='softmax'))
-#cnn_model1.add(Dense(3, activation='softmax'))
-cnn_model1.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
-cnn_model1.summary()
-print("X_seq_train: ", X_seq.shape)
-print("Y_seq_train: ", Y_seq.shape)
-cnn_model1.fit(X_seq, Y_seq, validation_split=0.33, batch_size=128)
+if IfReadModel:
+    cnn_model1 = load_model('CNN_Model.h5')
+else:
+    cnn_model1 = Sequential()
+    cnn_model1.add(Conv2D(filters=16, kernel_size=9, input_shape=(120, 63, 1),
+                          data_format='channels_last', activation='relu', padding='valid'))
+    cnn_model1.add(MaxPooling2D(pool_size=(10, 3), padding='valid'))
+    cnn_model1.add(Flatten())
+    cnn_model1.add(Dense(3, activation='softmax'))
+    #cnn_model1.add(Dense(3, activation='softmax'))
+    cnn_model1.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+    cnn_model1.summary()
+    print("X_seq_train: ", X_seq.shape)
+    print("Y_seq_train: ", Y_seq.shape)
+    cnn_model1.fit(X_seq, Y_seq, validation_split=0.33, batch_size=128)
 # score = cnn_model1.evaluate(X_seq_test, Y_seq_test, batch_size=128)
 cnn_preds = cnn_model1.predict(X_seq) # Results of the prediction from the trained model
 
