@@ -9,6 +9,7 @@ import numpy as np
 from scipy.io import loadmat
 from keras.models import Sequential, Model
 from keras.models import load_model
+from keras.utils import plot_model
 from keras.layers import Input, Dense, Activation, LSTM, SimpleRNN, Conv1D, Conv2D, MaxPooling1D, MaxPooling2D, Flatten
 import keras.backend as K
 import matplotlib.pyplot as plt
@@ -196,6 +197,7 @@ else:
     print("X_seq_train: ", X_seq.shape)
     print("Y_seq_train: ", Y_seq.shape)
     cnn_model1.fit(X_seq, Y_seq, validation_split=0.33, batch_size=128)
+    plot_model(cnn_model1, to_file='model.png') # Visualization
 # score = cnn_model1.evaluate(X_seq_test, Y_seq_test, batch_size=128)
 cnn_preds = cnn_model1.predict(X_seq) # Results of the prediction from the trained model
 
