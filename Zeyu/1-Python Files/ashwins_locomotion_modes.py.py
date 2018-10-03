@@ -7,6 +7,7 @@
 # Imports
 import numpy as np
 from scipy.io import loadmat
+import keras
 from keras.models import Sequential, Model
 from keras.models import load_model
 from keras.utils import plot_model
@@ -15,7 +16,7 @@ import keras.backend as K
 import matplotlib.pyplot as plt
 from keras.preprocessing.sequence import TimeseriesGenerator
 from keras.utils import Sequence, to_categorical
-
+from keras.callbacks import TensorBoard
 
 # ## Import the IMU Data
 
@@ -196,7 +197,10 @@ else:
     cnn_model1.summary()
     print("X_seq_train: ", X_seq.shape)
     print("Y_seq_train: ", Y_seq.shape)
-    cnn_model1.fit(X_seq, Y_seq, validation_split=0.33, batch_size=128)
+    dlcallback = keras.callbacks.TensorBoard(log_dir='./TensorboardLogs', histogram_freq=10,
+                                             write_graph=True, write_images=True, write_grads=True, batch_size=128,
+                                             update_freq='batch')
+    cnn_model1.fit(X_seq, Y_seq, validation_split=0.33, batch_size=128, callbacks=[dlcallback])
     plot_model(cnn_model1, to_file='model.png') # Visualization
 # score = cnn_model1.evaluate(X_seq_test, Y_seq_test, batch_size=128)
 cnn_preds = cnn_model1.predict(X_seq) # Results of the prediction from the trained model
