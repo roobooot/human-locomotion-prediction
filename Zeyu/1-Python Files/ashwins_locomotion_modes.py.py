@@ -41,7 +41,7 @@ for i in range(Ytemp.shape[0]):
 Y_prep = to_categorical(Yint)
 
 
-# Get some statistics from the data
+ # Get some statistics from the data
 exp_dur = X.shape[0]/100.0
 nfeat = X.shape[1]
 t = np.linspace(0, exp_dur, X.shape[0])
@@ -90,7 +90,7 @@ lr_model.add(Activation('softmax'))
 lr_model.compile(optimizer='adam',
                  loss='categorical_crossentropy',
                  metrics=['accuracy'])
-lr_model.fit(X_prep, Y_prep, epochs=30, batch_size=64)
+lr_model.fit(X_prep, Y_prep, validation_split = 0.33, epochs=30, batch_size=64)
 
 
 # ### Plot the labels
