@@ -295,3 +295,84 @@ plt.show()
 # plt.show()
 # 
 # =============================================================================
+
+#%% CNNs
+def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=None, seq_out=False, causal=True):
+    rows = data_array.shape[0]
+    cols = data_array.shape[1]
+
+    if dims == None:
+        outdims = [i for i in range(cols)]
+    else:
+        outdims = dims
+
+    sequences = rows//step_size
+    out_x = np.zeros((sequences, window_size, len(outdims)))
+    if seq_out:
+        out_y = np.zeros((sequences, window_size, y_array.shape[1]))
+    else:
+        out_y = np.zeros((sequences, y_array.shape[1]))
+
+    idxs = range(window_size, rows, step_size)    
+
+    for i, j in enumerate(idxs):
+        out_x[i, :, :] = data_array[j-window_size:j, outdims]
+        if seq_out:
+            out_y[i, :, :] = y_array[j-window_size:j, :]
+        else:
+            out_y[i, :] = y_array[j, :]
+
+    return out_x, out_y
+data_seq_train, label_seq_train = get_sub_sequences(selecteddatain_train, label_train_prep, window_size=100, step_size=2)
+data_seq_train = np.reshape(data_seq_train, newshape=(data_seq_train.shape[0], data_seq_train.shape[1], data_seq_train.shape[2], 1))
+data_seq_val, label_seq_val = get_sub_sequences(selecteddatain_val, label_val_prep, window_size=100, step_size=2)
+data_seq_val = np.reshape(data_seq_val, newshape=(data_seq_val.shape[0], data_seq_val.shape[1], data_seq_val.shape[2], 1))
+cnn_model1 = Sequential()
+cnn_model1.add(Conv2D(filters=16, kernel_size=9, input_shape=(100, data_seq_train.shape[2], 1),
+                      data_format='channels_last', activation='relu', padding='valid'))
+cnn_model1.add(MaxPooling2D(pool_size=(10, 3), padding='valid'))
+cnn_model1.add(Flatten())
+cnn_model1.add(Dense(label_train_prep.shape[1], activation='softmax'))
+#cnn_model1.add(Dense(3, activation='softmax'))
+cnn_model1.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+cnn_model1.summary()
+cnn_model1.fit(data_seq_train, label_seq_train, epochs= 10, batch_size=128)
+#%% Plot- CNNs Model result
+preds = cnn_model1.predict(data_seq_val)
+labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
+#print(preds)
+plt.figure(figsize=(15, 9))
+cmap = plt.get_cmap('jet_r')
+labelpreds0, = plt.plot(t_val, preds[:, 0]*450, label=labelcategories[0], color = cmap(0/len(labelcategories)))
+labelpreds1, = plt.plot(t_val, preds[:, 1]*450, label=labelcategories[1], color = cmap(1/len(labelcategories)))
+labelpreds2, = plt.plot(t_val, preds[:, 2]*450, label=labelcategories[2], color = cmap(2/len(labelcategories)))
+labelpreds3, = plt.plot(t_val, preds[:, 3]*450, label=labelcategories[3], color = cmap(3/len(labelcategories)))
+labelpreds4, = plt.plot(t_val, preds[:, 4]*450, label=labelcategories[4], color = cmap(4/len(labelcategories)))
+labelpreds5, = plt.plot(t_val, preds[:, 5]*450, label=labelcategories[5], color = cmap(5/len(labelcategories)))
+labelpreds6, = plt.plot(t_val, preds[:, 6]*450, label=labelcategories[6], color = cmap(6/len(labelcategories)))
+labelgt0, = plt.plot(t_val, label_val_prep[:, 0]*(-450),marker='.', label=[labelcategories[0],'-gt'], color = cmap(0/len(labelcategories)))
+labelgt1, = plt.plot(t_val, label_val_prep[:, 1]*(-450),marker='.', label=[labelcategories[1],'-gt'], color = cmap(1/len(labelcategories)))
+labelgt2, = plt.plot(t_val, label_val_prep[:, 2]*(-450),marker='.', label=[labelcategories[2],'-gt'], color = cmap(2/len(labelcategories)))
+labelgt3, = plt.plot(t_val, label_val_prep[:, 3]*(-450),marker='.', label=[labelcategories[3],'-gt'], color = cmap(3/len(labelcategories)))
+labelgt4, = plt.plot(t_val, label_val_prep[:, 4]*(-450),marker='.', label=[labelcategories[4],'-gt'], color = cmap(4/len(labelcategories)))
+labelgt5, = plt.plot(t_val, label_val_prep[:, 5]*(-450),marker='.', label=[labelcategories[5],'-gt'], color = cmap(5/len(labelcategories)))
+labelgt6, = plt.plot(t_val, label_val_prep[:, 6]*(-450),marker='.', label=[labelcategories[6],'-gt'], color = cmap(6/len(labelcategories)))
+
+firstlegend = plt.legend(handles=[labelpreds0,labelpreds1,labelpreds2,labelpreds3,labelpreds4,labelpreds5,labelpreds6],
+                         bbox_to_anchor=(0.5,0.7),ncol=3)
+ax = plt.gca().add_artist(firstlegend)
+secondlegend = plt.legend(handles=[labelgt0,labelgt1, labelgt2, labelgt3, labelgt4, labelgt5, labelgt6],
+                          bbox_to_anchor=(0.65,0.2),ncol=3)
+ax = plt.gca().add_artist(secondlegend)
+#labelpreds, = plt.plot(t, label_prep*4)
+data1, = plt.plot(t_val, selecteddatain_val[:,-2-1], label=categories1[-2-1-8])
+#plt.plot(t, array_data_in_notrigger_float[:,1], label=categories[1])
+#plt.plot(t, array_data_in_notrigger_float[:,2], label=categories[2])
+plt.legend(handles=[data1],bbox_to_anchor=(0,0.6,1, 0.4) )
+#plt.xlim([26, 46])
+#plt.ylim([-50, 50])
+plt.ylabel('Features')
+plt.xlabel('Time (s)')
+plt.title('Locomotion Mode Prediction Using Logistic Regression')
+plt.grid()
+plt.show()
