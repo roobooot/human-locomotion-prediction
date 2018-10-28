@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct 23 19:30:12 2018
+Created on Sun Oct 28 13:50:51 2018
 
 @author: Zed_Luz
 """
-
-#%% Data reader
+#%%
 import csv
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from keras.utils import to_categorical
 import os
 from sklearn import preprocessing
+#%%read data
 def readdata (datapath):#read data from csv and store in array with type of float
     data_in = list()
     with open(datapath) as csvfile:
@@ -45,58 +44,11 @@ def readdata (datapath):#read data from csv and store in array with type of floa
     label = dict_data_in['Mode']
     label_prep = to_categorical(label)
     return array_data_in_notrigger_float, dict_data_in, rowcount, colcount, categories, label_prep
-#%% Main
-DatasetPath = r'C:\Users\Zed_Luz\OneDrive - 南方科技大学\BigScaleFiles\1-datasets for bilateral lower limb neuromechanical signals\2-Data'
-#OnlineDatapath = r'C:\Users\Zed_Luz\OneDrive - 南方科技大学\BigScaleFiles\1-datasets for bilateral lower limb neuromechanical signals\2-Data\AB185\Processed\AB185_Circuit_001_post.csv'
-OnlineDatapath = dict()
-Subjects = []# ['AB185', 'AB186',...]
-for (dirpath, dirnames, filenames) in os.walk(DatasetPath):
-    Subjects.extend(dirnames)
-    break
-DataType = [] # ['Features', 'MVC', 'Processed', 'Raw']
-for (dirpath, dirnames, filenames) in os.walk(os.path.join(DatasetPath,Subjects[0])):
-    DataType.extend(dirnames)
-    break
-DataFileName = [] # ['Features', 'MVC', 'Processed', 'Raw']
-for (dirpath, dirnames, filenames) in os.walk(os.path.join(DatasetPath,Subjects[0],DataType[2])):
-    DataFileName.extend(filenames)
-    break
-data = os.path.join(DatasetPath,Subjects[0],DataType[2], DataFileName[0])
-array_data1, dict_data1, rowcount1, colcount1, categories1, label_prep1 = readdata(data)
-exp_dur = rowcount1/500
-t_seq = np.linspace(0, exp_dur, rowcount1)
-labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
-
-#%%Plot
-plt.figure(num=0)
-plt.title = 'Right_Shank_IMU'
-for i in range(3):
-    plt.plot(t_seq, array_data1[:,i]+i, label=categories1[i])
-for i in range(7):
-    plt.plot(t_seq, label_prep1[:,i]*3, label=labelcategories[i])
-plt.legend()
-plt.figure(num=1)
-for i in range(3,6):
-    plt.plot(t_seq, array_data1[:,i]+500*i, label=categories1[i])
-for i in range(7):
-    plt.plot(t_seq, label_prep1[:,i]*3000, label=labelcategories[i])
-plt.legend()
-IMUdataIndex = list(range(0,23+1,1))
-EMGdataIndex = list(range(24,43+1,1))
-GoniodataIndex = list(range(44,51+1,1))
-ModedataIndex = 52
-TriggerdataIndex = list(range(53,60+1,1))
-plt.plot(t_seq, array_data1[:,IMUdataIndex])
-
-enc = preprocessing.OrdinalEncoder()
-enc.fit(np.array(categories1).reshape(-1,1))
-IMUdataIndex = enc.transform([['Right_Shank_Ax'],['Left_Shank_Ax']])
-X_scaled = preprocessing.scale(array_data1)
-plt.plot(t_seq, X_scaled[:,5],label = 'scaled')
-plt.plot(t_seq, array_data1[:,3],label = 'raw')
-plt.legend()
+#%%
 #%% SubPlot
-def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,15)):
+def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories,rowcount1,fig_size = (25,15)):
+    exp_dur = rowcount1/500
+    t_seq = np.linspace(0, exp_dur, rowcount1)
     labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
     array_data1 = Array_data
     label_prep1 = Label_prep
@@ -170,7 +122,9 @@ def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,
     savepath = r'C:\Users\Zed_Luz\OneDrive\3-MEE\21-NUS Lab Intern\Work\3-IMU-DeepLearning\Zeyu\1-Python Files\DataGraph\1-IMUs'
     fig2.savefig(os.path.join(savepath,IMU_Loc)+'.png')
 #%%
-def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,15)):
+def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, rowcount1,fig_size = (25,15)):
+    exp_dur = rowcount1/500
+    t_seq = np.linspace(0, exp_dur, rowcount1)
     labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
     array_data1 = Array_data
     label_prep1 = Label_prep
@@ -223,4 +177,3 @@ def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, fig_size = 
     fig2.suptitle(GONIO_Loc+' Leg',fontsize=20)
     savepath = r'C:\Users\Zed_Luz\OneDrive\3-MEE\21-NUS Lab Intern\Work\3-IMU-DeepLearning\Zeyu\1-Python Files\DataGraph\2-GONIO'
     fig2.savefig(os.path.join(savepath,GONIO_Loc)+'.png')
-    

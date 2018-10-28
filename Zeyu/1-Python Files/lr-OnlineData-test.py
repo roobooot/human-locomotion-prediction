@@ -354,8 +354,11 @@ cnn_model2 = Sequential()
 cnn_model2.add(Conv2D(filters=128, kernel_size=(15,1), input_shape=(win_size, data_seq_train.shape[2], 1),
                       data_format='channels_last', activation='relu', padding='valid'))
 cnn_model2.add(MaxPooling2D(pool_size=(2, 1), padding='valid', data_format='channels_last'))
-cnn_model2.add(Reshape((43,128,38), input_shape=(43,38,128)))
-cnn_model2.add(Conv2D(filters=256, kernel_size=(12,128), input_shape=(43,128,38),
+#cnn_model2.add(Reshape((43,128,38), input_shape=(43,38,128)))
+cnn_model2.add(Conv2D(filters=256, kernel_size=(12,1), input_shape=(43,38,128),
+                      data_format='channels_last', activation='relu', padding='valid'))
+cnn_model2.add(MaxPooling2D(pool_size=(2,1), padding='valid', data_format='channels_last'))
+cnn_model2.add(Conv2D(filters=256, kernel_size=(15,1), input_shape=(16,38,256),
                       data_format='channels_last', activation='relu', padding='valid'))
 cnn_model2.add(MaxPooling2D(pool_size=(2,1), padding='valid', data_format='channels_last'))
 cnn_model2.add(Flatten())
