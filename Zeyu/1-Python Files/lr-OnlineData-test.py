@@ -19,51 +19,17 @@ from keras.utils import Sequence, to_categorical, plot_model
 from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.manifold import TSNE
-import csv
 import os
+from lzy_utils import readdata, get_sub_sequences
+from sklearn import preprocessing
 #from imu_preprocess_utils import *
 #import tsne as tsne
-
-
-#%% Data input
-def readdata (datapath):#read data from csv and store in array with type of float
-    data_in = list()
-    with open(datapath) as csvfile:
-       spamreader = csv.reader(csvfile)
-       for i, row in enumerate(spamreader):
-           if i == 0:
-               categories = row
-           else:
-               data_in.append(row)
-    
-    data_in = np.array(data_in)
-    data_in_trigger = [row[-8:] for row in data_in] # only trigger 
-    data_in_notrigger = [row[:-8] for row in data_in] # without trigger 
-    data_in_notrigger_float = list()
-    data_in_trigger_float = list()
-    for i in range(0,len(data_in_notrigger)):
-        buff = np.float32(data_in_notrigger[i])
-        data_in_notrigger_float.append(buff)
-    ## transfer trigger data into float
-    #for i in range(0,len(data_in_trigger)):
-    #    buff = np.float32(data_in_trigger[i])
-    #    data_in_trigger_float.append(buff)
-    array_data_in_notrigger_float = np.array(data_in_notrigger_float)
-    rowcount = array_data_in_notrigger_float.shape[0]
-    colcount = array_data_in_notrigger_float.shape[1]
-    dict_data_in = dict()
-    for col in range(colcount):
-        dict_data_in[categories[col]] = array_data_in_notrigger_float[:,col]
-    label = dict_data_in['Mode']
-    label_prep = to_categorical(label)
-    return array_data_in_notrigger_float, dict_data_in, rowcount, colcount, categories, label_prep
-# In[2]:
-
 
 #%% Import data and save as dict and list
 DatasetPath = r'C:\Users\Zed_Luz\OneDrive - 南方科技大学\BigScaleFiles\1-datasets for bilateral lower limb neuromechanical signals\2-Data'
 #OnlineDatapath = r'C:\Users\Zed_Luz\OneDrive - 南方科技大学\BigScaleFiles\1-datasets for bilateral lower limb neuromechanical signals\2-Data\AB185\Processed\AB185_Circuit_001_post.csv'
 OnlineDatapath = dict()
+IfMaxAbsPreprocess = True
 Subjects = []# ['AB185', 'AB186',...]
 for (dirpath, dirnames, filenames) in os.walk(DatasetPath):
     Subjects.extend(dirnames)
@@ -82,10 +48,29 @@ array_data1, dict_data1, rowcount1, colcount1, categories1, label_prep1 = readda
 array_data2, dict_data2, rowcount2, colcount2, categories2, label_prep2 = readdata(data2)
 Train_data = array_data1
 Val_data = array_data2
-#%% Select specific channels of data 
 
+#%%
+if IfMaxAbsPreprocess:
+    max_abs_scaler = preprocessing.MaxAbsScaler()
+    Train_data = max_abs_scaler.fit_transform(Train_data)
+    Val_data = max_abs_scaler.fit_transform(Val_data)
+#%% Select specific channels of data 
+labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent',
+                       'Standing']
 print(len(categories1),'All of Data types:',categories1)
-selectedchannels = ['Right_Shank_Ax', 'Right_Shank_Ay', 'Right_Shank_Az', 'Right_Shank_Gy', 'Right_Shank_Gz', 'Right_Shank_Gx', 'Right_Thigh_Ax', 'Right_Thigh_Ay', 'Right_Thigh_Az', 'Right_Thigh_Gy', 'Right_Thigh_Gz', 'Right_Thigh_Gx', 'Left_Shank_Ax', 'Left_Shank_Ay', 'Left_Shank_Az', 'Left_Shank_Gy', 'Left_Shank_Gz', 'Left_Shank_Gx', 'Left_Thigh_Ax', 'Left_Thigh_Ay', 'Left_Thigh_Az', 'Left_Thigh_Gy', 'Left_Thigh_Gz', 'Left_Thigh_Gx', 'Waist_Ax', 'Waist_Ay', 'Waist_Az', 'Waist_Gy', 'Waist_Gz', 'Waist_Gx','Right_Ankle', 'Right_Knee', 'Left_Ankle', 'Left_Knee', 'Right_Ankle_Velocity', 'Right_Knee_Velocity', 'Left_Ankle_Velocity', 'Left_Knee_Velocity']
+selectedchannels = ['Right_Shank_Ax', 'Right_Shank_Ay', 'Right_Shank_Az', 'Right_Shank_Gy', 
+                    'Right_Shank_Gz', 'Right_Shank_Gx', 'Right_Thigh_Ax', 'Right_Thigh_Ay', 
+                    'Right_Thigh_Az', 'Right_Thigh_Gy', 'Right_Thigh_Gz', 'Right_Thigh_Gx', 
+                    'Left_Shank_Ax', 'Left_Shank_Ay', 'Left_Shank_Az', 'Left_Shank_Gy', 
+                    'Left_Shank_Gz', 'Left_Shank_Gx', 'Left_Thigh_Ax', 'Left_Thigh_Ay', 
+                    'Left_Thigh_Az', 'Left_Thigh_Gy', 'Left_Thigh_Gz', 'Left_Thigh_Gx', 
+                    'Waist_Ax', 'Waist_Ay', 'Waist_Az', 'Waist_Gy', 'Waist_Gz', 'Waist_Gx',
+                    'Right_Ankle', 'Right_Knee', 'Left_Ankle', 'Left_Knee', 
+                    'Right_Ankle_Velocity', 'Right_Knee_Velocity', 
+                    'Left_Ankle_Velocity', 'Left_Knee_Velocity']
+# selectedchannels = ['Right_Ankle', 'Right_Knee', 'Left_Ankle', 'Left_Knee', 
+#                     'Right_Ankle_Velocity', 'Right_Knee_Velocity', 
+#                     'Left_Ankle_Velocity', 'Left_Knee_Velocity']
 selectedindex = [categories1.index(selectedchannels[i]) 
                     for i in range(len(selectedchannels))]
 selectedchannelsNum = len(selectedchannels)
@@ -95,21 +80,24 @@ label_train = dict_data1['Mode']
 label_train_prep = to_categorical(label_train)
 label_val = dict_data2['Mode']
 label_val_prep = to_categorical(label_val)
-#%% Display train data
 exp_dur_train = rowcount1/500 # sample rate: 500Hz
 exp_dur_val = rowcount2/500 # sample rate: 500Hz
 nfeat = selectedchannelsNum
 t_train = np.linspace(0, exp_dur_train, rowcount1)
 t_val = np.linspace(0, exp_dur_val, rowcount2)
+#%% Display train data
+print('Illustate ', selectedchannelsNum, 'channels of data...')
 plt.figure(figsize=(10, 6))
-plt.plot(t_train, label_train_prep*300)
+cm = plt.get_cmap(name='gist_rainbow')
+for i in range(7):
+        plt.plot(t_train, label_prep1[:,i]*selecteddatain_train.max(), label=labelcategories[i])
+        plt.set_cmap(cm)
+        plt.fill_between(t_train, label_prep1[:,i]*selecteddatain_train.min(), 
+                         label_prep1[:,i]*selecteddatain_train.max(), alpha=0.3)
 plt.plot(t_train, selecteddatain_train)
+plt.legend()
 plt.show()
-# ## First Model-Regression
-
-# In[35]:
-
-
+#%% First Model-Regression
 lr_model = Sequential()
 lr_model.add(Dense(32, input_dim=nfeat, activation='relu'))
 lr_model.add(Dense(label_train_prep.shape[1]))
@@ -118,11 +106,11 @@ lr_model.compile(optimizer='adam',
                  loss='categorical_crossentropy',
                  metrics=['accuracy'])
 lr_model.fit(selecteddatain_train, label_train_prep, epochs=30, batch_size=64)
-score = lr_model.evaluate(selecteddatain_val, label_val_prep, batch_size=64)
+lr_score = lr_model.evaluate(selecteddatain_val, label_val_prep, batch_size=64)
+# lr_score = lr_model.evaluate(selecteddatain_train,label_train_prep)
+print(lr_score)
+#%% Second Model-Regression
 
-# # Second Model-Regression
-
-# In[27]:
 
 
 # =============================================================================
@@ -137,9 +125,7 @@ score = lr_model.evaluate(selecteddatain_val, label_val_prep, batch_size=64)
 # 
 # =============================================================================
 
-# ## Third Model-Regression
-
-# In[28]:
+#%% Third Model-Regression
 
 
 # =============================================================================
@@ -296,50 +282,25 @@ plt.show()
 # 
 # =============================================================================
 
-#%% CNNs
-def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=None, seq_out=False,
-                      causal=True):
-    rows = data_array.shape[0]
-    cols = data_array.shape[1]
-
-    if dims == None:
-        outdims = [i for i in range(cols)]
-    else:
-        outdims = dims
-
-    sequences = rows//step_size
-    out_x = np.zeros((sequences, window_size, len(outdims)))
-    if seq_out:
-        out_y = np.zeros((sequences, window_size, y_array.shape[1]))
-    else:
-        out_y = np.zeros((sequences, y_array.shape[1]))
-
-    idxs = range(window_size, rows, step_size)    
-
-    for i, j in enumerate(idxs):
-        out_x[i, :, :] = data_array[j-window_size:j, outdims]
-        if seq_out:
-            out_y[i, :, :] = y_array[j-window_size:j, :]
-        else:
-            out_y[i, :] = y_array[j, :]
-
-    return out_x, out_y
-win_size = 100
-data_seq_train, label_seq_train = get_sub_sequences(selecteddatain_train, 
-                                                    label_train_prep, window_size=win_size, step_size=10)
-data_seq_train = np.reshape(data_seq_train, newshape=(data_seq_train.shape[0], data_seq_train.shape[1], 
-                                                      data_seq_train.shape[2], 1))
-data_seq_val, label_seq_val = get_sub_sequences(selecteddatain_val, label_val_prep, window_size=win_size,
-                                                step_size=10)
-data_seq_val = np.reshape(data_seq_val, newshape=(data_seq_val.shape[0], data_seq_val.shape[1], 
-                                                  data_seq_val.shape[2], 1))
+#%% CNNs config
+win_size = 300
+step_leng = 10
+data_seq_train_Oshape, label_seq_train = get_sub_sequences(selecteddatain_train, 
+                                                    label_train_prep, window_size=win_size, step_size=step_leng)
+data_seq_train = np.reshape(data_seq_train_Oshape, newshape=(data_seq_train_Oshape.shape[0], data_seq_train_Oshape.shape[1], 
+                                                      data_seq_train_Oshape.shape[2], 1))
+data_seq_val_Oshape, label_seq_val = get_sub_sequences(selecteddatain_val, label_val_prep, window_size=win_size,
+                                                step_size=step_leng)
+data_seq_val = np.reshape(data_seq_val_Oshape, newshape=(data_seq_val_Oshape.shape[0], data_seq_val_Oshape.shape[1], 
+                                                  data_seq_val_Oshape.shape[2], 1))
 #%%Train
 cnn_model1 = Sequential()
 cnn_model1.add(Conv2D(filters=128, kernel_size=(15,data_seq_train.shape[2]), input_shape=(win_size, data_seq_train.shape[2], 1),
                       data_format='channels_last', activation='relu', padding='valid'))
 cnn_model1.add(MaxPooling2D(pool_size=(2, 1), padding='valid', data_format='channels_last'))
-cnn_model1.add(Reshape((43,128,1), input_shape=(43,1,128)))
-cnn_model1.add(Conv2D(filters=256, kernel_size=(12,128), input_shape=(43,128,1),data_format='channels_last', activation='relu', padding='valid'))
+cnn_model1.add(Reshape((cnn_model1.output_shape[1],cnn_model1.output_shape[3],1), input_shape=cnn_model1.output_shape[1:4]))
+cnn_model1.add(Conv2D(filters=256, kernel_size=(24,cnn_model1.output_shape[2]), input_shape=cnn_model1.output_shape[1:4],
+                      data_format='channels_last', activation='relu', padding='valid'))
 cnn_model1.add(MaxPooling2D(pool_size=(2,1), padding='valid', data_format='channels_last'))
 cnn_model1.add(Flatten())
 cnn_model1.add(Dense(label_train_prep.shape[1], activation='softmax'))

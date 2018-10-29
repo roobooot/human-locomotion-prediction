@@ -8,11 +8,13 @@ Created on Tue Oct 23 19:30:12 2018
 #%% Data reader
 import csv
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from keras.utils import to_categorical
 import os
+import sklearn as sk
+import sklearn.metrics.pairwise
+from skimage.transform import resize
 from sklearn import preprocessing
 def readdata (datapath):#read data from csv and store in array with type of float
     data_in = list()
@@ -91,12 +93,19 @@ plt.plot(t_seq, array_data1[:,IMUdataIndex])
 enc = preprocessing.OrdinalEncoder()
 enc.fit(np.array(categories1).reshape(-1,1))
 IMUdataIndex = enc.transform([['Right_Shank_Ax'],['Left_Shank_Ax']])
-X_scaled = preprocessing.scale(array_data1)
-plt.plot(t_seq, X_scaled[:,5],label = 'scaled')
-plt.plot(t_seq, array_data1[:,3],label = 'raw')
+array_data1_X_scaled = preprocessing.scale(array_data1)
+Min_max_scaller = preprocessing.MinMaxScaler()
+array_data1_X_MinMax = Min_max_scaller.fit_transform(array_data1)
+
+max_abs_scaler = preprocessing.MaxAbsScaler()
+array_data1_X_train_maxabs = max_abs_scaler.fit_transform(array_data1)
+
+plt.plot(t_seq, array_data1_scaled[:,5],label = 'scaled')
+plt.plot(t_seq, array_data1[:,5],label = 'raw')
+plt.plot(t_seq, array_data1_X_train_maxabs[:,5])
 plt.legend()
 #%% SubPlot
-def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,15)):
+def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,15),Ifsave=False):
     labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
     array_data1 = Array_data
     label_prep1 = Label_prep
@@ -168,9 +177,10 @@ def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,
     f2_ax6.title.set_fontsize(16)
     fig2.legend(loc=4,ncol=2,title='Modes',fontsize=15)
     savepath = r'C:\Users\Zed_Luz\OneDrive\3-MEE\21-NUS Lab Intern\Work\3-IMU-DeepLearning\Zeyu\1-Python Files\DataGraph\1-IMUs'
-    fig2.savefig(os.path.join(savepath,IMU_Loc)+'.png')
+    if Ifsave:
+        fig2.savefig(os.path.join(savepath,IMU_Loc)+'.png')
 #%%
-def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,15)):
+def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, fig_size = (25,15),Ifsave=False):
     labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
     array_data1 = Array_data
     label_prep1 = Label_prep
@@ -222,5 +232,21 @@ def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, fig_size = 
     fig2.legend(loc=4,ncol=2,title='Modes',fontsize=15)
     fig2.suptitle(GONIO_Loc+' Leg',fontsize=20)
     savepath = r'C:\Users\Zed_Luz\OneDrive\3-MEE\21-NUS Lab Intern\Work\3-IMU-DeepLearning\Zeyu\1-Python Files\DataGraph\2-GONIO'
-    fig2.savefig(os.path.join(savepath,GONIO_Loc)+'.png')
-    
+    if Ifsave:
+        fig2.savefig(os.path.join(savepath,GONIO_Loc)+'.png')
+
+#%%
+    #modified from https://stackoverflow.com/questions/33650371/recurrence-plot-in-python
+def recurrence_plot(s, eps=None, steps=None):
+    if eps==None: eps=0.1
+    if steps==None: steps=10
+    d = sk.metrics.pairwise.pairwise_distances(s)
+    d = np.floor(d / eps)
+    d[d > steps] = steps
+    #Z = squareform(d)
+    return d
+standing = recurrence_plot(array_data1[0:4289],steps=10000)
+standing/=standing.max()
+plt.imshow(standing)
+dat = resize(standing, (32,32),mode='constant')
+plt.imshow(dat)

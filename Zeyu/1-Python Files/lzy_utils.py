@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from keras.utils import to_categorical
 import os
-from sklearn import preprocessing
 #%%read data
 def readdata (datapath):#read data from csv and store in array with type of float
     data_in = list()
@@ -125,7 +124,8 @@ def PlotIMUs(IMU_Loc,Array_data, Label_prep, Channel_catagories,rowcount1,fig_si
 def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, rowcount1,fig_size = (25,15)):
     exp_dur = rowcount1/500
     t_seq = np.linspace(0, exp_dur, rowcount1)
-    labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
+    labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent',
+                       'Standing']
     array_data1 = Array_data
     label_prep1 = Label_prep
     cm = plt.get_cmap('gist_rainbow')
@@ -177,3 +177,32 @@ def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, rowcount1,f
     fig2.suptitle(GONIO_Loc+' Leg',fontsize=20)
     savepath = r'C:\Users\Zed_Luz\OneDrive\3-MEE\21-NUS Lab Intern\Work\3-IMU-DeepLearning\Zeyu\1-Python Files\DataGraph\2-GONIO'
     fig2.savefig(os.path.join(savepath,GONIO_Loc)+'.png')
+    
+    
+def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=None, seq_out=False,
+                      causal=True):
+    rows = data_array.shape[0]
+    cols = data_array.shape[1]
+
+    if dims == None:
+        outdims = [i for i in range(cols)]
+    else:
+        outdims = dims
+
+    sequences = rows//step_size
+    out_x = np.zeros((sequences, window_size, len(outdims)))
+    if seq_out:
+        out_y = np.zeros((sequences, window_size, y_array.shape[1]))
+    else:
+        out_y = np.zeros((sequences, y_array.shape[1]))
+
+    idxs = range(window_size, rows, step_size)    
+
+    for i, j in enumerate(idxs):
+        out_x[i, :, :] = data_array[j-window_size:j, outdims]
+        if seq_out:
+            out_y[i, :, :] = y_array[j-window_size:j, :]
+        else:
+            out_y[i, :] = y_array[j, :]
+
+    return out_x, out_y
