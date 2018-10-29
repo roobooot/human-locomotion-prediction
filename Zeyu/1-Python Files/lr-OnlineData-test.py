@@ -8,8 +8,7 @@
 import numpy as np
 from scipy.io import loadmat, savemat
 from keras.models import Sequential, Model
-from keras.layers import Input, Dense, Activation, Conv1D, Conv2D, MaxPooling1D, MaxPooling2D, Flatten, Reshape
-from keras.layers import SimpleRNN, LSTM, GRU, TimeDistributed, BatchNormalization
+from keras.layers import Input, Dense, Activation, Conv1D, Conv2D, MaxPooling1D, MaxPooling2D, Flatten, Reshape, Dropout
 from keras.losses import categorical_crossentropy
 from keras import regularizers
 import keras.backend as K
@@ -43,7 +42,7 @@ for (dirpath, dirnames, filenames) in os.walk(os.path.join(DatasetPath,Subjects[
     DataFileName.extend(filenames)
     break
 data1 = os.path.join(DatasetPath,Subjects[0],DataType[2], DataFileName[0])
-data2 = os.path.join(DatasetPath,Subjects[0],DataType[2], DataFileName[2])
+data2 = os.path.join(DatasetPath,Subjects[0],DataType[2], DataFileName[3])
 array_data1, dict_data1, rowcount1, colcount1, categories1, label_prep1 = readdata(data1)
 array_data2, dict_data2, rowcount2, colcount2, categories2, label_prep2 = readdata(data2)
 Train_data = array_data1
@@ -98,6 +97,7 @@ plt.plot(t_train, selecteddatain_train)
 plt.legend()
 plt.show()
 #%% First Model-Regression
+
 lr_model = Sequential()
 lr_model.add(Dense(32, input_dim=nfeat, activation='relu'))
 lr_model.add(Dense(label_train_prep.shape[1]))
@@ -111,41 +111,35 @@ lr_score = lr_model.evaluate(selecteddatain_val, label_val_prep, batch_size=64)
 print(lr_score)
 #%% Second Model-Regression
 
+lr_model1 = Sequential()
+lr_model1.add(Dense(32, input_dim=nfeat, activation='relu'))
+lr_model1.add(Dense(label_train_prep.shape[1]))
+lr_model1.add(Activation('softmax'))
+lr_model1.compile(optimizer='rmsprop',
+                 loss='categorical_crossentropy',
+                 metrics=['accuracy'])
+lr_model1.fit(selecteddatain_train, label_train_prep, epochs=30, batch_size=64)
+lr_score = lr_model.evaluate(selecteddatain_val, label_val_prep, batch_size=64)
+# lr_score = lr_model.evaluate(selecteddatain_train,label_train_prep)
+print(lr_score)
 
-
-# =============================================================================
-# lr_model1 = Sequential()
-# lr_model1.add(Dense(32, input_dim=nfeat, activation='relu'))
-# lr_model1.add(Dense(label_prep.shape[1]))
-# lr_model1.add(Activation('softmax'))
-# lr_model1.compile(optimizer='rmsprop',
-#                  loss='categorical_crossentropy',
-#                  metrics=['accuracy'])
-# lr_model1.fit(array_data_in_notrigger_float, label_prep, validation_split=0.33, epochs=30, batch_size=64)
-# 
-# =============================================================================
 
 #%% Third Model-Regression
 
 
-# =============================================================================
-# lr_model2 = Sequential()
-# lr_model2.add(Dense(32, input_dim=nfeat, activation='sigm`oid'))
-# lr_model2.add(Dense(label_prep.shape[1]))
-# lr_model2.add(Activation('softmax'))
-# lr_model2.compile(optimizer='adam',
-#                  loss='categorical_crossentropy',
-#                  metrics=['accuracy'])
-# lr_model2.fit(array_data_in_notrigger_float, label_prep, validation_split=0.33, epochs=30, batch_size=64)
-# 
-# =============================================================================
+lr_model2 = Sequential()
+lr_model2.add(Dense(32, input_dim=nfeat, activation='sigmoid'))
+lr_model2.add(Dense(label_train_prep.shape[1]))
+lr_model2.add(Activation('softmax'))
+lr_model2.compile(optimizer='adam',
+                 loss='categorical_crossentropy',
+                 metrics=['accuracy'])
+lr_model2.fit(selecteddatain_train, label_train_prep, epochs=30, batch_size=64)
+lr_score = lr_model.evaluate(selecteddatain_val, label_val_prep, batch_size=64)
+# lr_score = lr_model.evaluate(selecteddatain_train,label_train_prep)
+print(lr_score)
 
-# ## Plot-1st Model-Regression
-
-# In[31]:
-
-
-#%%
+#%% Plot-1st Model-Regression
 preds = lr_model.predict(selecteddatain_val)
 labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
 #print(preds)
@@ -192,47 +186,45 @@ plt.show()
 
 
 #%%
-# =============================================================================
-# preds = lr_model1.predict(array_data_in_notrigger_float)
-# labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
-# #print(preds)-Regression
-# plt.figure(figsize=(15, 9))
-# cmap = plt.get_cmap('jet_r')
-# labelpreds0, = plt.plot(t, preds[:, 0]*450, label=labelcategories[0], color = cmap(0/len(labelcategories)))
-# labelpreds1, = plt.plot(t, preds[:, 1]*450, label=labelcategories[1], color = cmap(1/len(labelcategories)))
-# labelpreds2, = plt.plot(t, preds[:, 2]*450, label=labelcategories[2], color = cmap(2/len(labelcategories)))
-# labelpreds3, = plt.plot(t, preds[:, 3]*450, label=labelcategories[3], color = cmap(3/len(labelcategories)))
-# labelpreds4, = plt.plot(t, preds[:, 4]*450, label=labelcategories[4], color = cmap(4/len(labelcategories)))
-# labelpreds5, = plt.plot(t, preds[:, 5]*450, label=labelcategories[5], color = cmap(5/len(labelcategories)))
-# labelpreds6, = plt.plot(t, preds[:, 6]*450, label=labelcategories[6], color = cmap(6/len(labelcategories)))
-# labelgt0, = plt.plot(t, label_prep[:, 0]*(-450),marker='.', label=[labelcategories[0],'-gt'], color = cmap(0/len(labelcategories)))
-# labelgt1, = plt.plot(t, label_prep[:, 1]*(-450),marker='.', label=[labelcategories[1],'-gt'], color = cmap(1/len(labelcategories)))
-# labelgt2, = plt.plot(t, label_prep[:, 2]*(-450),marker='.', label=[labelcategories[2],'-gt'], color = cmap(2/len(labelcategories)))
-# labelgt3, = plt.plot(t, label_prep[:, 3]*(-450),marker='.', label=[labelcategories[3],'-gt'], color = cmap(3/len(labelcategories)))
-# labelgt4, = plt.plot(t, label_prep[:, 4]*(-450),marker='.', label=[labelcategories[4],'-gt'], color = cmap(4/len(labelcategories)))
-# labelgt5, = plt.plot(t, label_prep[:, 5]*(-450),marker='.', label=[labelcategories[5],'-gt'], color = cmap(5/len(labelcategories)))
-# labelgt6, = plt.plot(t, label_prep[:, 6]*(-450),marker='.', label=[labelcategories[6],'-gt'], color = cmap(6/len(labelcategories)))
-# 
-# firstlegend = plt.legend(handles=[labelpreds0,labelpreds1,labelpreds2,labelpreds3,labelpreds4,labelpreds5,labelpreds6],
-#                          bbox_to_anchor=(0.5,0.7),ncol=3)
-# ax = plt.gca().add_artist(firstlegend)
-# secondlegend = plt.legend(handles=[labelgt0,labelgt1, labelgt2, labelgt3, labelgt4, labelgt5, labelgt6],
-#                           bbox_to_anchor=(0.65,0.2),ncol=3)
-# ax = plt.gca().add_artist(secondlegend)
-# #labelpreds, = plt.plot(t, label_prep*4)
-# data1, = plt.plot(t, array_data_in_notrigger_float[:,-2-1], label=categories[-2-1-8])
-# #plt.plot(t, array_data_in_notrigger_float[:,1], label=categories[1])
-# #plt.plot(t, array_data_in_notrigger_float[:,2], label=categories[2])
-# plt.legend(handles=[data1],bbox_to_anchor=(0,0.6,1, 0.4) )
-# #plt.xlim([26, 46])
-# #plt.ylim([-50, 50])
-# plt.ylabel('Features')
-# plt.xlabel('Time (s)')
-# plt.title('Locomotion Mode Prediction Using Logistic Regression')
-# plt.grid()
-# plt.show()
-# 
-# =============================================================================
+preds = lr_model1.predict(selecteddatain_val)
+labelcategories = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent','Standing']
+#print(preds)-Regression
+plt.figure(figsize=(15, 9))
+cmap = plt.get_cmap('jet_r')
+labelpreds0, = plt.plot(t_val, preds[:, 0]*450, label=labelcategories[0], color = cmap(0/len(labelcategories)))
+labelpreds1, = plt.plot(t_val, preds[:, 1]*450, label=labelcategories[1], color = cmap(1/len(labelcategories)))
+labelpreds2, = plt.plot(t_val, preds[:, 2]*450, label=labelcategories[2], color = cmap(2/len(labelcategories)))
+labelpreds3, = plt.plot(t_val, preds[:, 3]*450, label=labelcategories[3], color = cmap(3/len(labelcategories)))
+labelpreds4, = plt.plot(t_val, preds[:, 4]*450, label=labelcategories[4], color = cmap(4/len(labelcategories)))
+labelpreds5, = plt.plot(t_val, preds[:, 5]*450, label=labelcategories[5], color = cmap(5/len(labelcategories)))
+labelpreds6, = plt.plot(t_val, preds[:, 6]*450, label=labelcategories[6], color = cmap(6/len(labelcategories)))
+labelgt0, = plt.plot(t_val, label_val_prep[:, 0]*(-450),marker='.', label=[labelcategories[0],'-gt'], color = cmap(0/len(labelcategories)))
+labelgt1, = plt.plot(t_val, label_val_prep[:, 1]*(-450),marker='.', label=[labelcategories[1],'-gt'], color = cmap(1/len(labelcategories)))
+labelgt2, = plt.plot(t_val, label_val_prep[:, 2]*(-450),marker='.', label=[labelcategories[2],'-gt'], color = cmap(2/len(labelcategories)))
+labelgt3, = plt.plot(t_val, label_val_prep[:, 3]*(-450),marker='.', label=[labelcategories[3],'-gt'], color = cmap(3/len(labelcategories)))
+labelgt4, = plt.plot(t_val, label_val_prep[:, 4]*(-450),marker='.', label=[labelcategories[4],'-gt'], color = cmap(4/len(labelcategories)))
+labelgt5, = plt.plot(t_val, label_val_prep[:, 5]*(-450),marker='.', label=[labelcategories[5],'-gt'], color = cmap(5/len(labelcategories)))
+labelgt6, = plt.plot(t_val, label_val_prep[:, 6]*(-450),marker='.', label=[labelcategories[6],'-gt'], color = cmap(6/len(labelcategories)))
+
+firstlegend = plt.legend(handles=[labelpreds0,labelpreds1,labelpreds2,labelpreds3,labelpreds4,labelpreds5,labelpreds6],
+                         bbox_to_anchor=(0.5,0.7),ncol=3)
+ax = plt.gca().add_artist(firstlegend)
+secondlegend = plt.legend(handles=[labelgt0,labelgt1, labelgt2, labelgt3, labelgt4, labelgt5, labelgt6],
+                          bbox_to_anchor=(0.65,0.2),ncol=3)
+ax = plt.gca().add_artist(secondlegend)
+#labelpreds, = plt.plot(t, label_prep*4)
+data1, = plt.plot(t_val, selecteddatain_val[:,-2-1], label=categories1[-2-1-8])
+#plt.plot(t, array_data_in_notrigger_float[:,1], label=categories[1])
+#plt.plot(t, array_data_in_notrigger_float[:,2], label=categories[2])
+plt.legend(handles=[data1],bbox_to_anchor=(0,0.6,1, 0.4) )
+#plt.xlim([26, 46])
+#plt.ylim([-50, 50])
+plt.ylabel('Features')
+plt.xlabel('Time (s)')
+plt.title('Locomotion Mode Prediction Using Logistic Regression')
+plt.grid()
+plt.show()
+
 
 # ## Plot-3rd Model-Regression
 
@@ -283,8 +275,8 @@ plt.show()
 # =============================================================================
 
 #%% CNNs config
-win_size = 300
-step_leng = 10
+win_size = 100
+step_leng = 20
 data_seq_train_Oshape, label_seq_train = get_sub_sequences(selecteddatain_train, 
                                                     label_train_prep, window_size=win_size, step_size=step_leng)
 data_seq_train = np.reshape(data_seq_train_Oshape, newshape=(data_seq_train_Oshape.shape[0], data_seq_train_Oshape.shape[1], 
@@ -299,7 +291,7 @@ cnn_model1.add(Conv2D(filters=128, kernel_size=(15,data_seq_train.shape[2]), inp
                       data_format='channels_last', activation='relu', padding='valid'))
 cnn_model1.add(MaxPooling2D(pool_size=(2, 1), padding='valid', data_format='channels_last'))
 cnn_model1.add(Reshape((cnn_model1.output_shape[1],cnn_model1.output_shape[3],1), input_shape=cnn_model1.output_shape[1:4]))
-cnn_model1.add(Conv2D(filters=256, kernel_size=(24,cnn_model1.output_shape[2]), input_shape=cnn_model1.output_shape[1:4],
+cnn_model1.add(Conv2D(filters=256, kernel_size=(12,cnn_model1.output_shape[2]), input_shape=cnn_model1.output_shape[1:4],
                       data_format='channels_last', activation='relu', padding='valid'))
 cnn_model1.add(MaxPooling2D(pool_size=(2,1), padding='valid', data_format='channels_last'))
 cnn_model1.add(Flatten())
