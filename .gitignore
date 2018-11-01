@@ -1,6 +1,6 @@
 .idea/
 .ipynb_checkpoints/
-ashwin/
-ashwin/.
+__pycache__/
+.ipynb/
 
 
