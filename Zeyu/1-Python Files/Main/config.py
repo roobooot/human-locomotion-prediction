@@ -15,12 +15,17 @@ class Config(object):
     SPILTRATIO = 0.33
     LABELCATEGORIES = ['Sitting','Level Ground Walking','Ramp Ascent','Ramp Descent','Stair Ascent','Stair Descent',
                        'Standing']
+    INDEX_IMU = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                26, 27, 28, 29]
+    INDEX_EMG = [30,31,32,33,34,35,36,37,38,39,40,41,42,43]
+    INDEX_GONIO = [44, 45, 46, 47, 48, 49, 50, 51]
+    
     DATAPATH = r'C:\Users\Zed_Luz\OneDrive - 南方科技大学\BigScaleFiles\1-datasets for bilateral lower limb neuromechanical signals\2-Data'
     def __init__(self):
         self.MAXABS_PREPROCESS = False
-    def display(self):
+    def displayConfig(self):
         print('\nConfiguration:')
         for a in dir(self):
-            if not a.startswith("__") and not callable(getattr(self, a)):
+            if not a.startswith("_") and not callable(getattr(self, a)):
                 print("{:30} {}".format(a, getattr(self, a)))
         print("\n")
