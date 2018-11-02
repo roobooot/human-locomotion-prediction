@@ -15,50 +15,49 @@ from sklearn import preprocessing
 class DATA(config.Config):
     DataType = ['Features', 'MVC', 'Processed', 'Raw']
 
-    def __init__(self, SplitData = False, ReadALL = False):
+    def __init__(self, SplitData = False, ReadALLSubjs = False):
         # self.path = config.Config.DATAPATH
         self.Subjects = []# ['AB185', 'AB186',...]
         self.SCANEDSubjects = []
         self.__DATAFileName = [] # [Subj1[Trails],Subj2[Trails],[...],[...]]
-        self.IfReadAll = ReadALL
+        self.IfReadAll = ReadALLSubjs
         self.IfSplitData = SplitData
         self.CHOOSEDCHANNELS=[]
     def scandata(self, Subj = None):
         self.__DATAFileName = []#Refresh the variable if case it overlap with multi times calling this methods.
         self.SCANEDSubjects = Subj
         if self.IfReadAll:
-            DataFileName=[]
             for (dirpath, dirnames, filenames) in os.walk(self.DATAPATH):
                 self.Subjects.extend(dirnames)
                 break
             for i in range(len(self.Subjects)):
+                DataFileName=[]
                 for (dirpath, dirnames, filenames) in os.walk(os.path.join(self.DATAPATH,self.Subjects[i],self.DataType[2])):
                     DataFileName.extend(filenames)
                     for j in range(len(DataFileName)):
                         DataFileName[j]=os.path.join(self.DATAPATH,self.Subjects[i],self.DataType[2], str(DataFileName[j]))
                     break
                 self.__DATAFileName.append(DataFileName)
-                DataFileName=[]
         else:
             try:
-                DataFileName=[]
                 for (dirpath, dirnames, filenames) in os.walk(self.DATAPATH):
                     self.Subjects.extend(dirnames)
                     break
                 for i in range(len(self.SCANEDSubjects)):
+                    DataFileName=[]
                     for (dirpath, dirnames, filenames) in os.walk(os.path.join(self.DATAPATH,self.Subjects[self.SCANEDSubjects[i]-1],self.DataType[2])):
                         DataFileName.extend(filenames)
                         for j in range(len(DataFileName)):
-                            DataFileName[j]=os.path.join(self.DATAPATH,self.Subjects[i],self.DataType[2], str(DataFileName[j]))
+                            DataFileName[j]=os.path.join(self.DATAPATH,self.Subjects[self.SCANEDSubjects[i]-1],self.DataType[2], str(DataFileName[j]))
                         break
-                    print('The',self.SCANEDSubjects[i],'subject is done scaning')
+                    print('Scaning the',self.SCANEDSubjects[i],'subject is done.')
                     self.__DATAFileName.append(DataFileName)
-                    DataFileName=[]
             except TypeError:
                 print('WARNING: please type in which subjects data you want read in, eg. [1] or [1,2,4,5,6]')
                     
         
     def stackdata(self, ChooseSensors=['IMU','GONIO']):
+        self.CHOOSEDCHANNELS=[] # refresh
         for sensor in range(len(ChooseSensors)):
             if ChooseSensors[sensor] == 'IMU':
                 self.CHOOSEDCHANNELS.extend(self.INDEX_IMU)
@@ -73,7 +72,7 @@ class DATA(config.Config):
                 for j in range(len(self.__DATAFileName[i])):
                     array_data1, dict_data1, rowcount1, colcount1, categories1, label_prep1 = lzy_utils.readdata(self.__DATAFileName[i][j])
                     array_data1 = array_data1[:,self.CHOOSEDCHANNELS]
-                    if i==0 & j ==0:
+                    if i==0 and j ==0:
                         CUTPoint = int(len(array_data1)*(1-config.Config.SPILTRATIO))#split the data, cutpoint is a integer.
                         Train_data_all = array_data1[:CUTPoint,:]
                         Train_label_all = label_prep1[:CUTPoint,:]
@@ -84,7 +83,7 @@ class DATA(config.Config):
                         Train_label_all = np.vstack((Train_label_all,label_prep1[:CUTPoint,:]))
                         Val_data_all = np.vstack((Val_data_all,array_data1[CUTPoint+1:,:]))
                         Val_label_all = np.vstack((Val_label_all,label_prep1[CUTPoint+1:,:]))
-                print('Finish stacking data of the',i+1,'subjects')
+                print('Finish stacking data of the',i+1,'subjects:',j+1,'trails')
             self.TRAIN_DATA_all = Train_data_all
             self.TRAIN_LABEL_all = Train_label_all
             self.VAL_DATA_all = Val_data_all
@@ -158,7 +157,36 @@ class DATA(config.Config):
                                  self.VAL_LABEL_all[:,i]*self.VAL_DATA_all.max(), alpha=0.3)
         plt.plot(t_val, self.VAL_DATA_all)
         VALPLOT.set_xlabel('Time(s)')
-    
+    def PrepareCNNdataset(self):
+        data_seq_train_Oshape, self.TRAIN_LABEL_all = lzy_utils.get_sub_sequences(self.TRAIN_DATA_all, 
+                                                            self.TRAIN_LABEL_all,
+                                                            window_size=self.WINDOW_SIZE,
+                                                            step_size=self.STEP_SIZE)
+        self.TRAIN_DATA_all = np.reshape(data_seq_train_Oshape, newshape=(data_seq_train_Oshape.shape[0],
+                                                                     data_seq_train_Oshape.shape[1],
+                                                                     data_seq_train_Oshape.shape[2], 1))
+        data_seq_val_Oshape, self.VAL_LABEL_all = lzy_utils.get_sub_sequences(self.VAL_DATA_all,
+                                                                         self.VAL_LABEL_all,
+                                                                         window_size=self.WINDOW_SIZE,
+                                                                         step_size=self.STEP_SIZE)
+        self.VAL_DATA_all = np.reshape(data_seq_val_Oshape, newshape=(data_seq_val_Oshape.shape[0],
+                                                                      data_seq_val_Oshape.shape[1], 
+                                                                      data_seq_val_Oshape.shape[2], 1))
+        print('The dataset for CNN is prepared',
+              '\nwhose shape of train set is',self.TRAIN_DATA_all.shape,
+              '\nwhose shape of val set is',self.VAL_DATA_all.shape)
+    def PrepareRNNdataset(self):
+        self.TRAIN_DATA_all, self.TRAIN_LABEL_all = lzy_utils.get_sub_sequences(self.TRAIN_DATA_all, 
+                                                            self.TRAIN_LABEL_all,
+                                                            window_size=self.WINDOW_SIZE,
+                                                            step_size=self.STEP_SIZE)
+        self.VAL_DATA_all, self.VAL_LABEL_all = lzy_utils.get_sub_sequences(self.VAL_DATA_all,
+                                                                         self.VAL_LABEL_all,
+                                                                         window_size=self.WINDOW_SIZE,
+                                                                         step_size=self.STEP_SIZE)
+        print('The dataset for CNN is prepared',
+              '\nwhose shape of train set is',self.TRAIN_DATA_all.shape,
+              '\nwhose shape of val set is',self.VAL_DATA_all.shape)
 
 
             

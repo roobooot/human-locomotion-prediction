@@ -7,9 +7,8 @@ Created on Fri Nov  2 08:55:21 2018
 
 import model
 
-a= model.DATA(SplitData=0.33, ReadALL=False)
-a.scandata(Subj=[1,2])
-a.displayConfig()
+a= model.DATA(SplitData=True, ReadALLSubjs=False)
+a.scandata(Subj=[1])
 a.stackdata()
 a.PreprocessData()
 a.DisplayData()
