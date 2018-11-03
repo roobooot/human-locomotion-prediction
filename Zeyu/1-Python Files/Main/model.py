@@ -37,6 +37,7 @@ class DATA(config.Config):
                     for j in range(len(DataFileName)):
                         DataFileName[j]=os.path.join(self.DATAPATH,self.Subjects[i],self.DataType[2], str(DataFileName[j]))
                     break
+                print('Scaning the',self.Subjects[i],'subject is done.')
                 self.__DATAFileName.append(DataFileName)
         else:
             try:
@@ -50,7 +51,7 @@ class DATA(config.Config):
                         for j in range(len(DataFileName)):
                             DataFileName[j]=os.path.join(self.DATAPATH,self.Subjects[self.SCANEDSubjects[i]-1],self.DataType[2], str(DataFileName[j]))
                         break
-                    print('Scaning the',self.SCANEDSubjects[i],'subject is done.')
+                    print('Scaning the',self.Subjects[self.SCANEDSubjects[i]-1],'subject is done.')
                     self.__DATAFileName.append(DataFileName)
             except TypeError:
                 print('WARNING: please type in which subjects data you want read in, eg. [1] or [1,2,4,5,6]')
@@ -108,6 +109,7 @@ class DATA(config.Config):
             print('Done stacking data!\n', 'ALL Dataset:', self.DATA_all.shape)
         
     def PreprocessData(self, Preprocess='AbsMax'):# default scaller is MaxAbs
+        assert Preprocess in ['AbsMax','MinMax'], "%r is not a registed preprocess method" % Preprocess
         try:
             print('The preprocess method is',Preprocess)
         except NameError:
@@ -129,7 +131,7 @@ class DATA(config.Config):
             except NameError:
                 print('The scaller haven''t been defined, the data hasn''t been processed')
         print('.\n..\n...\nPreprocess is done')
-    def DisplayData(self):
+    def displaydata(self):
                 # Display train data
         print('Illustate ',len(self.CHOOSEDCHANNELS) , 'channels of data...')
         exp_dur_train = self.TRAIN_DATA_all.shape[0]/500 # sample rate: 500Hz
@@ -184,7 +186,7 @@ class DATA(config.Config):
                                                                          self.VAL_LABEL_all,
                                                                          window_size=self.WINDOW_SIZE,
                                                                          step_size=self.STEP_SIZE)
-        print('The dataset for CNN is prepared',
+        print('The dataset for RNN is prepared',
               '\nwhose shape of train set is',self.TRAIN_DATA_all.shape,
               '\nwhose shape of val set is',self.VAL_DATA_all.shape)
 
