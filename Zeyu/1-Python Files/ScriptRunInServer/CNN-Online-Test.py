@@ -115,7 +115,7 @@ cnn_model1.summary()
 # In[41]:
 CNN1281525612=cnn_model1.fit(OnlineData.TRAIN_DATA_all,
                              OnlineData.TRAIN_LABEL_all,
-                             epochs=10,
+                             epochs=100,
                              batch_size=128,
                              validation_data=(OnlineData.VAL_DATA_all,OnlineData.VAL_LABEL_all))
 cnn_model1.save('../ModelLogs/CNN-Server_test_2_ALL_DATA')
