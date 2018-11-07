@@ -6,7 +6,7 @@ import model_server
 
 
 # In[45]:
-OnlineData = model_server.DATA(ReadALLSubjs=False,SplitData=True)
+OnlineData = model_server.DATA(ReadALLSubjs=True,SplitData=True)
 
 # In[46]:
 
@@ -118,6 +118,6 @@ CNN1281525612=cnn_model1.fit(OnlineData.TRAIN_DATA_all,
                              epochs=10,
                              batch_size=128,
                              validation_data=(OnlineData.VAL_DATA_all,OnlineData.VAL_LABEL_all))
-cnn_model1.save('../ModelLogs/CNN-Server_test_1')
+cnn_model1.save('../ModelLogs/CNN-Server_test_2_ALL_DATA')
 # In[23]:
 
