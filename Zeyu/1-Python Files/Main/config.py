@@ -8,7 +8,7 @@ import numpy as np
 
 class Config(object):
     WINDOW_SIZE = 100
-    STEP_SIZE = 10
+    STEP_SIZE = 50
     STEPS_PER_EPOCH = 1000
     LEARNING_RATE = 0.001
     MAXABS_PREPROCESS = False

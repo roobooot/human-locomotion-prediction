@@ -179,8 +179,7 @@ def PlotGONIOs(GONIO_Loc,Array_data, Label_prep, Channel_catagories, rowcount1,f
     fig2.savefig(os.path.join(savepath,GONIO_Loc)+'.png')
     
     
-def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=None, seq_out=False,
-                      causal=True):
+def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=None, seq_out=False, mostlabel=True):
     rows = data_array.shape[0]
     cols = data_array.shape[1]
 
@@ -203,6 +202,13 @@ def get_sub_sequences(data_array, y_array, window_size=120, step_size=90, dims=N
         if seq_out:
             out_y[i, :, :] = y_array[j-window_size:j, :]
         else:
-            out_y[i, :] = y_array[j, :]
+            if mostlabel:
+                labelcount = []
+                for k in range(y_array.shape[1]):
+                    labelcount.append(np.count_nonzero(y_array[j-window_size:j,k]==1))
+                M = labelcount.index(max(labelcount))
+                out_y[i, :] = to_categorical(M,y_array.shape[1])#most-frequently happened label
+            else:
+                out_y[i, :] = y_array[j, :]
 
     return out_x, out_y

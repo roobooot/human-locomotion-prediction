@@ -144,20 +144,20 @@ class DATA(config.Config):
         
         TRAINPLOT = plot1.add_subplot(spec1[0, 0],title='Train data set')
         for i in range(self.TRAIN_LABEL_all.shape[1]):
-                plt.plot(t_train, self.TRAIN_LABEL_all[:,i]*self.TRAIN_DATA_all.max(), label=self.LABELCATEGORIES[i])
+                plt.plot(t_train[0:10000], self.TRAIN_LABEL_all[0:10000,i]*self.TRAIN_DATA_all.max(), label=self.LABELCATEGORIES[i])
                 plt.set_cmap(cm)
-                plt.fill_between(t_train, self.TRAIN_LABEL_all[:,i]*self.TRAIN_DATA_all.min(), 
-                                 self.TRAIN_LABEL_all[:,i]*self.TRAIN_DATA_all.max(), alpha=0.3)
-        plt.plot(t_train, self.TRAIN_DATA_all)
+                plt.fill_between(t_train[0:10000], self.TRAIN_LABEL_all[0:10000,i]*self.TRAIN_DATA_all.min(),
+                                 self.TRAIN_LABEL_all[0:10000,i]*self.TRAIN_DATA_all.max(), alpha=0.3)
+        plt.plot(t_train[0:10000], self.TRAIN_DATA_all[0:10000])
         TRAINPLOT.set_xlabel('Time(s)')
         
         VALPLOT = plot1.add_subplot(spec1[0, 1],title='Val data set')
         for i in range(self.VAL_LABEL_all.shape[1]):
-                plt.plot(t_val, self.VAL_LABEL_all[:,i]*self.VAL_DATA_all.max(), label=self.LABELCATEGORIES[i])
+                plt.plot(t_val[0:10000], self.VAL_LABEL_all[0:10000,i]*self.VAL_DATA_all.max(), label=self.LABELCATEGORIES[i])
                 plt.set_cmap(cm)
-                plt.fill_between(t_val, self.VAL_LABEL_all[:,i]*self.VAL_DATA_all.min(), 
-                                 self.VAL_LABEL_all[:,i]*self.VAL_DATA_all.max(), alpha=0.3)
-        plt.plot(t_val, self.VAL_DATA_all)
+                plt.fill_between(t_val[0:10000], self.VAL_LABEL_all[0:10000,i]*self.VAL_DATA_all.min(),
+                                 self.VAL_LABEL_all[0:10000,i]*self.VAL_DATA_all.max(), alpha=0.3)
+        plt.plot(t_val[0:10000], self.VAL_DATA_all[0:10000])
         VALPLOT.set_xlabel('Time(s)')
     def PrepareCNNdataset(self):
         data_seq_train_Oshape, self.TRAIN_LABEL_all = lzy_utils.get_sub_sequences(self.TRAIN_DATA_all, 

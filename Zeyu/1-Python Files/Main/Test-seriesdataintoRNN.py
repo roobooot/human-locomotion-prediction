@@ -5,6 +5,7 @@ Onlinedata = model.DATA(ReadALLSubjs=False, SplitData=True)
 Onlinedata.scandata(Subj=[1])
 Onlinedata.stackdata(ChooseSensors=['IMU'])
 Onlinedata.PreprocessData()
+Onlinedata.PrepareRNNdataset()
 Onlinedata.TRAIN_DATA_all.shape
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
