@@ -1,0 +1,121 @@
+Using TensorFlow backend.
+Scaning the AB193 subject is done.
+Scaning the AB186 subject is done.
+Scaning the AB192 subject is done.
+Scaning the AB156 subject is done.
+Scaning the AB188 subject is done.
+Scaning the AB190 subject is done.
+Scaning the AB194 subject is done.
+Scaning the AB185 subject is done.
+Scaning the AB191 subject is done.
+Scaning the AB189 subject is done.
+30 channels of ['IMU'] data are selected:
+Start stacking data...(Split data into train set and val set), and split ratio is  0.33
+Traceback (most recent call last):
+  File "CNN-Online-Test.py", line 15, in <module>
+    OnlineData.stackdata(ChooseSensors=['IMU'])
+  File "/home/zhangkuangen/Zeyu/1-Code/human-locomotion-prediction/Zeyu/1-Python Files/ScriptRunInServer/model_server.py", line 74, in stackdata
+    array_data1, dict_data1, rowcount1, colcount1, categories1, label_prep1 = lzy_utils.readdata(self.__DATAFileName[i][j])
+  File "/home/zhangkuangen/Zeyu/1-Code/human-locomotion-prediction/Zeyu/1-Python Files/ScriptRunInServer/lzy_utils.py", line 26, in readdata
+    data_in_trigger = [row[-8:] for row in data_in] # only trigger 
+KeyboardInterrupt
+Using TensorFlow backend.
+Scaning the AB193 subject is done.
+Scaning the AB186 subject is done.
+Scaning the AB192 subject is done.
+Scaning the AB156 subject is done.
+Scaning the AB188 subject is done.
+Scaning the AB190 subject is done.
+Scaning the AB194 subject is done.
+Scaning the AB185 subject is done.
+Scaning the AB191 subject is done.
+Scaning the AB189 subject is done.
+30 channels of ['IMU'] data are selected:
+Start stacking data...(Split data into train set and val set), and split ratio is  0.33
+Finish stacking data of the 1 subjects: 50 trails
+Finish stacking data of the 2 subjects: 44 trails
+Finish stacking data of the 3 subjects: 48 trails
+Finish stacking data of the 4 subjects: 50 trails
+Finish stacking data of the 5 subjects: 40 trails
+Finish stacking data of the 6 subjects: 49 trails
+Finish stacking data of the 7 subjects: 50 trails
+Finish stacking data of the 8 subjects: 52 trails
+Finish stacking data of the 9 subjects: 44 trails
+Finish stacking data of the 10 subjects: 49 trails
+Done stacking data! 
+Train dataset: (8013012, 30) 
+Val dataset: (3705714, 30)
+The preprocess method is AbsMax
+.
+..
+...
+Preprocess is done
+
+Configuration:
+CHOOSEDCHANNELS                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+DATAPATH                       ../../../../../Dataset
+DataType                       ['Features', 'MVC', 'Processed', 'Raw']
+INDEX_EMG                      [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
+INDEX_GONIO                    [44, 45, 46, 47, 48, 49, 50, 51]
+INDEX_IMU                      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+IfReadAll                      True
+IfSplitData                    True
+LABELCATEGORIES                ['Sitting', 'Level Ground Walking', 'Ramp Ascent', 'Ramp Descent', 'Stair Ascent', 'Stair Descent', 'Standing']
+LEARNING_RATE                  0.001
+MAXABS_PREPROCESS              False
+SCANEDSubjects                 [1]
+SPILTRATIO                     0.33
+STEPS_PER_EPOCH                1000
+STEP_SIZE                      50
+Subjects                       ['AB193', 'AB186', 'AB192', 'AB156', 'AB188', 'AB190', 'AB194', 'AB185', 'AB191', 'AB189']
+TRAIN_DATA_all                 [[-0.24491842  0.05874898 -0.04331663 ...  0.00404672 -0.00337581
+   0.0021206 ]
+ [-0.24483453  0.05878881 -0.04324621 ...  0.00385647 -0.00337732
+   0.00206539]
+ [-0.24475424  0.05882194 -0.04321337 ...  0.00367899 -0.00338177
+   0.00200822]
+ ...
+ [-0.16957332 -0.02774805  0.23907873 ...  0.03458895 -0.03565938
+   0.10010027]
+ [-0.1715801  -0.02509429  0.23848869 ...  0.03374838 -0.03373955
+   0.09945832]
+ [-0.17365    -0.02260494  0.23787534 ...  0.03286765 -0.03184506
+   0.09873731]]
+TRAIN_LABEL_all                [[1. 0. 0. ... 0. 0. 0.]
+ [1. 0. 0. ... 0. 0. 0.]
+ [1. 0. 0. ... 0. 0. 0.]
+ ...
+ [0. 1. 0. ... 0. 0. 0.]
+ [0. 1. 0. ... 0. 0. 0.]
+ [0. 1. 0. ... 0. 0. 0.]]
+VAL_DATA_all                   [[-0.2671164   0.20611817 -0.14932032 ...  0.0178469   0.06426615
+   0.01277052]
+ [-0.2680112   0.20088546 -0.15017363 ...  0.01396475  0.0655626
+   0.01500634]
+ [-0.26914075  0.1946205  -0.15095884 ...  0.01003272  0.06690363
+   0.01729738]
+ ...
+ [-0.27027038 -0.01620552  0.11121059 ...  0.01024622 -0.00179197
+  -0.00319206]
+ [-0.27030843 -0.01631116  0.11115832 ...  0.01037025 -0.00197411
+  -0.00303498]
+ [-0.2703504  -0.01641405  0.11109664 ...  0.01046316 -0.00212556
+  -0.00289766]]
+VAL_LABEL_all                  [[0. 1. 0. ... 0. 0. 0.]
+ [0. 1. 0. ... 0. 0. 0.]
+ [0. 1. 0. ... 0. 0. 0.]
+ ...
+ [1. 0. 0. ... 0. 0. 0.]
+ [1. 0. 0. ... 0. 0. 0.]
+ [1. 0. 0. ... 0. 0. 0.]]
+WINDOW_SIZE                    100
+
+
+Traceback (most recent call last):
+  File "CNN-Online-Test.py", line 34, in <module>
+    OnlineData.PrepareCNNdataset()
+  File "/home/zhangkuangen/Zeyu/1-Code/human-locomotion-prediction/Zeyu/1-Python Files/ScriptRunInServer/model_server.py", line 173, in PrepareCNNdataset
+    step_size=self.STEP_SIZE)
+  File "/home/zhangkuangen/Zeyu/1-Code/human-locomotion-prediction/Zeyu/1-Python Files/ScriptRunInServer/lzy_utils.py", line 192, in get_sub_sequences
+    out_x = np.zeros((sequences, window_size, len(outdims)))
+MemoryError
