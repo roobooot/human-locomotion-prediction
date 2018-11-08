@@ -1,8 +1,8 @@
 import model
 import matplotlib.pyplot as plt
 
-Onlinedata = model.DATA(ReadALLSubjs=False, SplitData=True)
-Onlinedata.scandata(Subj=[1])
+Onlinedata = model.DATA(ReadALLSubjs=True, SplitData=True)
+Onlinedata.scandata()
 Onlinedata.stackdata(ChooseSensors=['IMU'])
 Onlinedata.PreprocessData()
 Onlinedata.PrepareRNNdataset()
