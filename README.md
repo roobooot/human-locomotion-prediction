@@ -1,5 +1,5 @@
 # human-locomotion-prediction
-if you use the code, please cite
+if you use our code, please cite our paper.
 
 
 ```
